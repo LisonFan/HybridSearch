@@ -16,6 +16,7 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 - 可选的 ChatGPT2API 综合回答及引用来源。
 - 支持 Tavily、Firecrawl、TinyFish、Exa 搜索和网页提取。
 - 对 GitHub issue、PR 和 release 进行结构化解析。
+- 通过公共 API 专门解析 StackExchange、arXiv 和 Wikipedia 页面。
 - 按搜索会话缓存来源，并支持分页读取。
 - 在上游支持时执行域名和时间范围过滤。
 - 所有 provider 共享单次调用总超时，并支持响应大小限制。
@@ -27,7 +28,7 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 | --- | --- |
 | `web_search` | 搜索、合并引用、按需提取正文并缓存来源。 |
 | `get_sources` | 通过 `session_id` 读取缓存来源，不重新搜索。 |
-| `web_fetch` | 读取指定 URL；GitHub URL 使用结构化 REST 解析。 |
+| `web_fetch` | 读取指定 URL；GitHub、StackExchange、arXiv 和 Wikipedia URL 使用专用 API 解析。 |
 | `web_map` | 使用 Tavily Map 发现站点 URL。 |
 | `doctor` | 探测已配置 provider，并返回脱敏后的运行诊断。 |
 
@@ -95,6 +96,9 @@ cargo build --release --locked
 | `HYBRID_SEARCH_ENRICH_MAX_CHARS` | `15000` | 每个来源内联正文最大长度。 |
 | `HYBRID_SEARCH_MAX_INLINE_SOURCES` | `5` | 最大内联正文来源数。 |
 | `HYBRID_SEARCH_GITHUB_MAX_COMMENTS` | `30` | GitHub 评论最大渲染数量。 |
+| `HYBRID_SEARCH_SOURCE_MAX_ANSWERS` | `5` | StackExchange 答案最大渲染数量，采纳答案优先。 |
+
+对于匹配的 URL，`web_fetch` 会直接使用 GitHub REST API、Stack Exchange API v2.3、arXiv Export API 和 MediaWiki Action API。这些公共专用 API 不需要 Tavily、Firecrawl、TinyFish 或 Exa 凭据。专用解析失败时，HybridSearch 会记录原因，并降级到已配置的通用抓取链。
 
 ## MCP 客户端配置
 

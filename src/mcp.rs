@@ -63,7 +63,7 @@ impl HybridSearchServer {
 
     #[tool(
         name = "web_fetch",
-        description = "Fetch and extract one known URL. GitHub issues, pull requests, and releases use structured GitHub REST extraction; other pages use Tavily, Firecrawl, TinyFish, then Exa."
+        description = "Fetch and extract one known URL. GitHub issues, pull requests, and releases, StackExchange questions, arXiv papers, and Wikipedia articles use specialist APIs; other pages use Tavily, Firecrawl, TinyFish, then Exa."
     )]
     async fn web_fetch(
         &self,

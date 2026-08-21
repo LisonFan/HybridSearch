@@ -1,12 +1,8 @@
 use crate::error::{HybridSearchError, Result};
+use crate::sources::SpecialistPage;
 use reqwest::Client;
 use serde_json::Value;
 use url::Url;
-
-pub struct GithubPage {
-    pub content: String,
-    pub source_type: &'static str,
-}
 
 #[derive(Clone)]
 struct Comment {
@@ -20,7 +16,7 @@ pub async fn fetch(
     url: &Url,
     token: Option<&str>,
     max_comments: usize,
-) -> Result<Option<GithubPage>> {
+) -> Result<Option<SpecialistPage>> {
     if url.host_str() != Some("github.com") {
         return Ok(None);
     }
@@ -46,7 +42,7 @@ pub async fn fetch(
             max_comments,
         )
         .await?;
-        return Ok(Some(GithubPage {
+        return Ok(Some(SpecialistPage {
             content,
             source_type: if is_pull {
                 "github_pull"
@@ -72,7 +68,7 @@ pub async fn fetch(
             )
         };
         let response = get_json(client, &endpoint, token, "GitHub release").await?;
-        return Ok(Some(GithubPage {
+        return Ok(Some(SpecialistPage {
             content: render_release(&response)?,
             source_type: "github_release",
         }));

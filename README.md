@@ -16,6 +16,7 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 - Optional ChatGPT2API synthesized answers with cited sources.
 - Tavily, Firecrawl, TinyFish, and Exa search and page extraction.
 - Structured GitHub issue, pull request, and release extraction.
+- Specialist StackExchange, arXiv, and Wikipedia extraction through their public APIs.
 - Cached source sessions with paginated retrieval.
 - Domain and recency filters where the upstream provider can enforce them.
 - Shared request deadlines and configurable response limits.
@@ -27,7 +28,7 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 | --- | --- |
 | `web_search` | Search, merge citations, optionally extract page content, and cache sources. |
 | `get_sources` | Read cached sources by `session_id` without running another search. |
-| `web_fetch` | Read one URL; GitHub URLs use structured REST extraction. |
+| `web_fetch` | Read one URL; GitHub, StackExchange, arXiv, and Wikipedia URLs use specialist APIs. |
 | `web_map` | Discover URLs with Tavily Map. |
 | `doctor` | Probe configured providers and show redacted runtime diagnostics. |
 
@@ -95,6 +96,9 @@ The binary is written to `target/release/hybrid-search` (`hybrid-search.exe` on 
 | `HYBRID_SEARCH_ENRICH_MAX_CHARS` | `15000` | Maximum inline content per source. |
 | `HYBRID_SEARCH_MAX_INLINE_SOURCES` | `5` | Maximum sources enriched inline. |
 | `HYBRID_SEARCH_GITHUB_MAX_COMMENTS` | `30` | Maximum rendered GitHub comments. |
+| `HYBRID_SEARCH_SOURCE_MAX_ANSWERS` | `5` | Maximum rendered StackExchange answers; accepted answers are shown first. |
+
+`web_fetch` uses the GitHub REST API, Stack Exchange API v2.3, arXiv Export API, and MediaWiki Action API directly for matching URLs. These public specialist APIs do not require Tavily, Firecrawl, TinyFish, or Exa credentials. When a specialist cannot extract the page, HybridSearch records the reason and falls back to the configured generic fetch chain.
 
 ## MCP client setup
 

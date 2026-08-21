@@ -26,6 +26,7 @@ pub struct Config {
     pub enrich_max_chars: usize,
     pub max_inline_sources: usize,
     pub github_max_comments: usize,
+    pub source_max_answers: usize,
 }
 
 impl Config {
@@ -104,6 +105,7 @@ impl Config {
             enrich_max_chars: positive_usize(&values, "HYBRID_SEARCH_ENRICH_MAX_CHARS", 15_000),
             max_inline_sources: usize_value(&values, "HYBRID_SEARCH_MAX_INLINE_SOURCES", 5),
             github_max_comments: positive_usize(&values, "HYBRID_SEARCH_GITHUB_MAX_COMMENTS", 30),
+            source_max_answers: positive_usize(&values, "HYBRID_SEARCH_SOURCE_MAX_ANSWERS", 5),
         })
     }
 

@@ -406,11 +406,12 @@ impl SearchService {
         let mut specialist_failure = None;
         match timeout_at(
             deadline,
-            crate::sources::github::fetch(
+            crate::sources::fetch(
                 &self.inner.client,
                 url,
                 self.inner.config.github_token.as_deref(),
                 self.inner.config.github_max_comments,
+                self.inner.config.source_max_answers,
             ),
         )
         .await
@@ -430,7 +431,7 @@ impl SearchService {
             Ok(Err(error)) => specialist_failure = Some(error.to_string()),
             Err(_) => {
                 return Err(HybridSearchError::Timeout(
-                    "GitHub content extraction".to_string(),
+                    "specialist content extraction".to_string(),
                 ));
             }
         }
