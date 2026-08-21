@@ -1,5 +1,5 @@
 {
-  "name": "@lisonfan/hybridsearch-mcp-linux-arm64",
+  "name": "hybridsearch-mcp-linux-arm64",
   "version": "0.0.1",
   "description": "Linux arm64 binary for HybridSearch MCP",
   "license": "MIT",

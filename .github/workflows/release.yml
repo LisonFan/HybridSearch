@@ -171,7 +171,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
-        run: gh release create "$RELEASE_TAG" ./* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" ./* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$RELEASE_TAG" ./* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+          fi
 
   publish-npm-platforms:
     name: Publish ${{ matrix.platform }} package to npm
@@ -208,7 +213,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.prepare.outputs.tag }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || needs.prepare.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -227,12 +232,14 @@ jobs:
         shell: bash
         run: |
           PACKAGE_DIR="npm/platforms/${{ matrix.platform }}"
+          EXTRACT_DIR="$(mktemp -d)"
           mkdir -p "$PACKAGE_DIR/bin"
           if [[ "${{ matrix.asset }}" == *.zip ]]; then
-            unzip "dist/${{ matrix.asset }}" -d "$PACKAGE_DIR/bin"
+            unzip "dist/${{ matrix.asset }}" -d "$EXTRACT_DIR"
           else
-            tar -xzf "dist/${{ matrix.asset }}" -C "$PACKAGE_DIR/bin"
+            tar -xzf "dist/${{ matrix.asset }}" -C "$EXTRACT_DIR"
           fi
+          cp "$EXTRACT_DIR/${{ matrix.binary }}" "$PACKAGE_DIR/bin/"
           if [[ "${{ matrix.binary }}" != *.exe ]]; then
             chmod 0755 "$PACKAGE_DIR/bin/${{ matrix.binary }}"
           fi
@@ -258,7 +265,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.prepare.outputs.tag }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || needs.prepare.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7

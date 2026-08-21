@@ -43,12 +43,12 @@
     "arm64"
   ],
   "optionalDependencies": {
-    "@lisonfan/hybridsearch-mcp-darwin-x64": "0.0.1",
-    "@lisonfan/hybridsearch-mcp-darwin-arm64": "0.0.1",
-    "@lisonfan/hybridsearch-mcp-linux-x64": "0.0.1",
-    "@lisonfan/hybridsearch-mcp-linux-arm64": "0.0.1",
-    "@lisonfan/hybridsearch-mcp-win32-x64": "0.0.1",
-    "@lisonfan/hybridsearch-mcp-win32-arm64": "0.0.1"
+    "hybridsearch-mcp-darwin-x64": "0.0.1",
+    "hybridsearch-mcp-darwin-arm64": "0.0.1",
+    "hybridsearch-mcp-linux-x64": "0.0.1",
+    "hybridsearch-mcp-linux-arm64": "0.0.1",
+    "hybridsearch-mcp-win32-x64": "0.0.1",
+    "hybridsearch-mcp-win32-arm64": "0.0.1"
   },
   "publishConfig": {
     "access": "public"

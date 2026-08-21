@@ -1,5 +1,5 @@
 {
-  "name": "@lisonfan/hybridsearch-mcp-win32-arm64",
+  "name": "hybridsearch-mcp-win32-arm64",
   "version": "0.0.1",
   "description": "Windows arm64 binary for HybridSearch MCP",
   "license": "MIT",
