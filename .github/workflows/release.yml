@@ -5,13 +5,39 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
+  prepare:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Resolve release version
+        id: release
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          if [[ "$RELEASE_TAG" != v* ]]; then
+            echo "Release tag must start with v" >&2
+            exit 1
+          fi
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build ${{ matrix.asset }}
+    needs: prepare
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -47,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -60,19 +88,22 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Set version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          VERSION="$VERSION" node <<'NODE'
+          node <<'NODE'
           const fs = require("fs");
           const manifestPath = "Cargo.toml";
           const manifest = fs.readFileSync(manifestPath, "utf8");
+          const versionPattern = /^version\s*=\s*"[^"]+"/m;
+          if (!versionPattern.test(manifest)) {
+            throw new Error("Cargo package version was not found");
+          }
           const updated = manifest.replace(
-            /^version\s*=\s*"[^"]+"/m,
+            versionPattern,
             `version = "${process.env.VERSION}"`
           );
-          if (updated === manifest) throw new Error("Cargo package version was not found");
           fs.writeFileSync(manifestPath, updated);
           NODE
           cargo update -p hybridsearch-mcp
@@ -120,8 +151,7 @@ jobs:
 
   publish:
     name: Publish GitHub Release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [prepare, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -140,12 +170,12 @@ jobs:
         working-directory: artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${GITHUB_REF_NAME}" ./* --repo "${GITHUB_REPOSITORY}" --verify-tag --generate-notes
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: gh release create "$RELEASE_TAG" ./* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
 
   publish-npm-platforms:
     name: Publish ${{ matrix.platform }} package to npm
-    needs: publish
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [prepare, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -177,6 +207,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -205,8 +237,9 @@ jobs:
             chmod 0755 "$PACKAGE_DIR/bin/${{ matrix.binary }}"
           fi
           cp LICENSE THIRD_PARTY_NOTICES.md "$PACKAGE_DIR/"
-          VERSION="${GITHUB_REF_NAME#v}"
           npm --prefix "$PACKAGE_DIR" version "$VERSION" --no-git-tag-version --allow-same-version
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
 
       - name: Publish platform package
         working-directory: npm/platforms/${{ matrix.platform }}
@@ -216,8 +249,7 @@ jobs:
 
   publish-npm:
     name: Publish main package to npm
-    needs: publish-npm-platforms
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [prepare, publish-npm-platforms]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -225,6 +257,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -235,12 +269,13 @@ jobs:
 
       - name: Sync package versions with tag
         shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           PACKAGE_DIR="npm/hybridsearch-mcp"
-          VERSION="${GITHUB_REF_NAME#v}"
           npm --prefix "$PACKAGE_DIR" version "$VERSION" --no-git-tag-version --allow-same-version
           cp LICENSE THIRD_PARTY_NOTICES.md "$PACKAGE_DIR/"
-          VERSION="$VERSION" node <<'NODE'
+          node <<'NODE'
           const fs = require("fs");
           const manifestPath = "npm/hybridsearch-mcp/package.json";
           const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
