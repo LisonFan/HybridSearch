@@ -1,0 +1,17 @@
+{
+  "name": "@lisonfan/hybridsearch-mcp-darwin-x64",
+  "version": "0.0.1",
+  "description": "macOS x64 binary for HybridSearch MCP",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LisonFan/HybridSearch.git"
+  },
+  "os": ["darwin"],
+  "cpu": ["x64"],
+  "files": ["bin/hybrid-search", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "preferUnplugged": true,
+  "publishConfig": {
+    "access": "public"
+  }
+}

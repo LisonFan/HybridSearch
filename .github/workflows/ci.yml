@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Format, check, and Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust 1.97.1
+        uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Check all targets
+        run: cargo check --locked --all-targets
+
+      - name: Run Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+  npm-package:
+    name: Validate npm package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "26.7.0"
+          package-manager-cache: false
+
+      - name: Check launcher syntax
+        run: node --check npm/hybridsearch-mcp/run.js
+
+      - name: Validate package manifests
+        shell: bash
+        run: |
+          for manifest in npm/hybridsearch-mcp/package.json npm/platforms/*/package.json; do
+            node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "$manifest"
+          done
+
+      - name: Inspect main package contents
+        working-directory: npm/hybridsearch-mcp
+        run: |
+          cp ../../LICENSE ../../THIRD_PARTY_NOTICES.md .
+          npm pack --dry-run --ignore-scripts

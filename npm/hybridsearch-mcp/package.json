@@ -1,0 +1,56 @@
+{
+  "name": "hybridsearch-mcp",
+  "version": "0.0.1",
+  "description": "Hybrid web search MCP server powered by ChatGPT2API, Tavily, Firecrawl, TinyFish, and Exa",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LisonFan/HybridSearch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LisonFan/HybridSearch/issues"
+  },
+  "homepage": "https://github.com/LisonFan/HybridSearch#readme",
+  "keywords": [
+    "mcp",
+    "search",
+    "tavily",
+    "firecrawl",
+    "exa",
+    "rust",
+    "cli"
+  ],
+  "bin": {
+    "hybrid-search": "run.js",
+    "hybridsearch-mcp": "run.js"
+  },
+  "files": [
+    "run.js",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "engines": {
+    "node": ">=26.7.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "optionalDependencies": {
+    "@lisonfan/hybridsearch-mcp-darwin-x64": "0.0.1",
+    "@lisonfan/hybridsearch-mcp-darwin-arm64": "0.0.1",
+    "@lisonfan/hybridsearch-mcp-linux-x64": "0.0.1",
+    "@lisonfan/hybridsearch-mcp-linux-arm64": "0.0.1",
+    "@lisonfan/hybridsearch-mcp-win32-x64": "0.0.1",
+    "@lisonfan/hybridsearch-mcp-win32-arm64": "0.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

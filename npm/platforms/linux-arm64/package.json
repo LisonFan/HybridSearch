@@ -1,0 +1,17 @@
+{
+  "name": "@lisonfan/hybridsearch-mcp-linux-arm64",
+  "version": "0.0.1",
+  "description": "Linux arm64 binary for HybridSearch MCP",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LisonFan/HybridSearch.git"
+  },
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "files": ["bin/hybrid-search", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "preferUnplugged": true,
+  "publishConfig": {
+    "access": "public"
+  }
+}
