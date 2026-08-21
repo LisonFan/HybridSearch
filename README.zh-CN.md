@@ -48,7 +48,7 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 可以通过 npm 安装原生二进制：
 
 ```bash
-npm install -g hybridsearch-mcp
+npm install -g @dctwgroo/hybridsearch-mcp
 hybrid-search --version
 ```
 

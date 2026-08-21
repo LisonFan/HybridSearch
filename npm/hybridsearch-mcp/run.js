@@ -6,12 +6,12 @@ const path = require("path");
 
 const BINARY_NAME = "hybrid-search";
 const PLATFORM_PACKAGES = {
-  "darwin-x64": "hybridsearch-mcp-darwin-x64",
-  "darwin-arm64": "hybridsearch-mcp-darwin-arm64",
-  "linux-x64": "hybridsearch-mcp-linux-x64",
-  "linux-arm64": "hybridsearch-mcp-linux-arm64",
-  "win32-x64": "hybridsearch-mcp-win32-x64",
-  "win32-arm64": "hybridsearch-mcp-win32-arm64"
+  "darwin-x64": "@dctwgroo/hybridsearch-mcp-darwin-x64",
+  "darwin-arm64": "@dctwgroo/hybridsearch-mcp-darwin-arm64",
+  "linux-x64": "@dctwgroo/hybridsearch-mcp-linux-x64",
+  "linux-arm64": "@dctwgroo/hybridsearch-mcp-linux-arm64",
+  "win32-x64": "@dctwgroo/hybridsearch-mcp-win32-x64",
+  "win32-arm64": "@dctwgroo/hybridsearch-mcp-win32-arm64"
 };
 
 const platform = `${process.platform}-${process.arch}`;
@@ -29,7 +29,7 @@ try {
   binaryPath = path.join(path.dirname(manifestPath), "bin", executable);
 } catch (_) {
   console.error(`Unable to find the platform package ${packageName}.`);
-  console.error(`Reinstall with: npm install -g hybridsearch-mcp`);
+  console.error(`Reinstall with: npm install -g @dctwgroo/hybridsearch-mcp`);
   process.exit(1);
 }
 

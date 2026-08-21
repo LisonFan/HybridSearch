@@ -3,7 +3,7 @@
 Install the native HybridSearch MCP server with npm:
 
 ```bash
-npm install -g hybridsearch-mcp
+npm install -g @dctwgroo/hybridsearch-mcp
 hybrid-search --version
 ```
 
@@ -16,7 +16,7 @@ Node.js 26.7.0 or newer is required.
 使用 npm 安装 HybridSearch MCP 原生程序：
 
 ```bash
-npm install -g hybridsearch-mcp
+npm install -g @dctwgroo/hybridsearch-mcp
 hybrid-search --version
 ```
 

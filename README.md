@@ -48,7 +48,7 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 Install the native binary from npm:
 
 ```bash
-npm install -g hybridsearch-mcp
+npm install -g @dctwgroo/hybridsearch-mcp
 hybrid-search --version
 ```
 

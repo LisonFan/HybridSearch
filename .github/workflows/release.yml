@@ -250,9 +250,7 @@ jobs:
 
       - name: Publish platform package
         working-directory: npm/platforms/${{ matrix.platform }}
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
 
   publish-npm:
     name: Publish main package to npm
@@ -294,6 +292,4 @@ jobs:
 
       - name: Publish main package
         working-directory: npm/hybridsearch-mcp
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
