@@ -1,6 +1,7 @@
 pub mod cache;
 pub mod config;
 pub mod error;
+pub mod help;
 pub mod logging;
 pub mod mcp;
 pub mod model;

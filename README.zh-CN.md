@@ -29,11 +29,21 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 
 | 工具 | 用途 |
 | --- | --- |
+| `help` | 查看功能索引，或按工具与配置主题读取详细帮助。 |
 | `web_search` | 搜索、按需指定单个供应商、合并引用、提取正文并缓存来源。 |
 | `get_sources` | 通过 `session_id` 读取缓存来源，不重新搜索。 |
 | `web_fetch` | 读取指定 URL；GitHub、StackExchange、arXiv 和 Wikipedia URL 使用专用 API 解析。 |
 | `web_map` | 使用 Tavily Map 发现站点 URL。 |
 | `doctor` | 探测已配置 provider，并返回脱敏后的运行诊断。 |
+
+`help({})` 只返回精简的 HybridSearch 功能索引。需要了解具体行为时再指定主题，例如 `help({ "topic": "web_search" })` 或 `help({ "topic": "web_fetch" })`。可用主题包括 `web_search`、`get_sources`、`web_fetch`、`web_map`、`doctor` 和 `configuration`。
+
+原生程序也提供相同的分层帮助：
+
+```bash
+hybrid-search help
+hybrid-search help web_search
+```
 
 配置 ChatGPT2API 时，`web_search` 会先调用它。Tavily、Firecrawl、TinyFish、Exa 构成默认补充和降级链，首个返回有效来源的 provider 即停止。请求包含域名或时间过滤条件时会跳过 Firecrawl，因为它的搜索接口无法严格执行这些过滤条件。
 

@@ -117,6 +117,55 @@ impl SearchProvider {
     }
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum HelpTopic {
+    WebSearch,
+    GetSources,
+    WebFetch,
+    WebMap,
+    Doctor,
+    Configuration,
+}
+
+impl HelpTopic {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::WebSearch => "web_search",
+            Self::GetSources => "get_sources",
+            Self::WebFetch => "web_fetch",
+            Self::WebMap => "web_map",
+            Self::Doctor => "doctor",
+            Self::Configuration => "configuration",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Deserialize, JsonSchema)]
+pub struct HelpInput {
+    /// Omit for the HybridSearch index, or select one topic for focused help.
+    #[serde(default)]
+    pub topic: Option<HelpTopic>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct HelpTopicSummary {
+    pub name: String,
+    pub summary: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct HelpOutput {
+    pub topic: String,
+    pub summary: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usage: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub details: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub topics: Vec<HelpTopicSummary>,
+}
+
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct WebSearchInput {
     /// Search query.

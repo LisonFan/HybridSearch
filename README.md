@@ -29,11 +29,21 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 
 | Tool | Purpose |
 | --- | --- |
+| `help` | Show the capability index, or focused help for one tool or configuration topic. |
 | `web_search` | Search, optionally select one provider, merge citations, extract page content, and cache sources. |
 | `get_sources` | Read cached sources by `session_id` without running another search. |
 | `web_fetch` | Read one URL; GitHub, StackExchange, arXiv, and Wikipedia URLs use specialist APIs. |
 | `web_map` | Discover URLs with Tavily Map. |
 | `doctor` | Probe configured providers and show redacted runtime diagnostics. |
+
+`help({})` returns only a compact HybridSearch index. Request a topic when detailed behavior matters, for example `help({ "topic": "web_search" })` or `help({ "topic": "web_fetch" })`. Available topics are `web_search`, `get_sources`, `web_fetch`, `web_map`, `doctor`, and `configuration`.
+
+The same help is available from the executable:
+
+```bash
+hybrid-search help
+hybrid-search help web_search
+```
 
 `web_search` calls ChatGPT2API first when it is configured. Tavily, Firecrawl, TinyFish, and Exa form the default supplemental/fallback chain; the first provider with usable sources wins. Firecrawl is skipped when a request contains domain or recency filters because its search API cannot enforce those filters.
 

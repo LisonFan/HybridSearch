@@ -1,6 +1,6 @@
 use crate::model::{
-    DoctorOutput, GetSourcesInput, GetSourcesOutput, WebFetchInput, WebFetchOutput, WebMapInput,
-    WebMapOutput, WebSearchInput, WebSearchOutput,
+    DoctorOutput, GetSourcesInput, GetSourcesOutput, HelpInput, HelpOutput, WebFetchInput,
+    WebFetchOutput, WebMapInput, WebMapOutput, WebSearchInput, WebSearchOutput,
 };
 use crate::service::SearchService;
 use rmcp::{
@@ -28,8 +28,16 @@ impl HybridSearchServer {
 #[tool_router(router = tool_router)]
 impl HybridSearchServer {
     #[tool(
+        name = "help",
+        description = "Show the short HybridSearch capability index, or focused help for one tool or configuration topic."
+    )]
+    async fn help(&self, Parameters(input): Parameters<HelpInput>) -> Json<HelpOutput> {
+        Json(crate::help::help(input.topic))
+    }
+
+    #[tool(
         name = "web_search",
-        description = "Search the web with the configured provider chain. ChatGPT2API runs first when configured, followed by the HYBRID_SEARCH_SOURCE_PROVIDERS chain. Set provider to chatgpt2api, tavily, firecrawl, tinyfish, or exa to use only that provider with no fallback. Sources are cached under the returned session_id. Use response_format=concise for metadata only or detailed for inline page content."
+        description = "Search the web with automatic routing or one selected provider. Use help(topic=web_search) for routing, filters, formats, and recovery details."
     )]
     async fn web_search(
         &self,
@@ -44,7 +52,7 @@ impl HybridSearchServer {
 
     #[tool(
         name = "get_sources",
-        description = "Read cached sources from an earlier web_search by session_id without issuing a new search. Supports offset and limit pagination, and returns recovery guidance when the response budget trims a page."
+        description = "Read sources cached by web_search without searching again. Use help(topic=get_sources) for pagination and recovery details."
     )]
     async fn get_sources(
         &self,
@@ -63,7 +71,7 @@ impl HybridSearchServer {
 
     #[tool(
         name = "web_fetch",
-        description = "Fetch and extract one known URL. GitHub issues, pull requests, and releases, StackExchange questions, arXiv papers, and Wikipedia articles use specialist APIs; other pages use the configured source-provider chain."
+        description = "Fetch and extract one known URL. Use help(topic=web_fetch) for specialist APIs, fallback, and truncation details."
     )]
     async fn web_fetch(
         &self,
@@ -78,7 +86,7 @@ impl HybridSearchServer {
 
     #[tool(
         name = "web_map",
-        description = "Discover URLs under a site with Tavily Map. Requires TAVILY_API_KEY."
+        description = "Discover URLs under a site with Tavily Map. Use help(topic=web_map) for requirements and limits."
     )]
     async fn web_map(
         &self,
@@ -93,7 +101,7 @@ impl HybridSearchServer {
 
     #[tool(
         name = "doctor",
-        description = "Probe every enabled search provider and return endpoints, enablement, credential presence, effective order, categorized failures, and other redacted runtime diagnostics. Provider probes may consume a small search request."
+        description = "Probe enabled providers and return redacted diagnostics. Use help(topic=doctor) before calling it."
     )]
     async fn doctor(&self) -> Json<DoctorOutput> {
         Json(self.service.doctor().await)
@@ -111,7 +119,7 @@ impl ServerHandler for HybridSearchServer {
                     .with_website_url(env!("CARGO_PKG_HOMEPAGE")),
             )
             .with_instructions(
-                "Use web_search for discovery; pass provider only when one configured provider must be used without fallback. Use web_fetch for a known URL, get_sources for cached results, web_map for Tavily URL discovery, and doctor for diagnostics."
+                "Call help without a topic for the HybridSearch capability index, then request focused help for a tool when its detailed behavior matters."
             )
     }
 }

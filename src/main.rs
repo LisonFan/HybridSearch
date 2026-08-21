@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use hybridsearch_mcp::config::Config;
+use hybridsearch_mcp::help::{help, parse_topic, render_cli};
 use hybridsearch_mcp::mcp::HybridSearchServer;
 use hybridsearch_mcp::service::SearchService;
 use rmcp::{ServiceExt, transport::stdio};
@@ -7,19 +8,26 @@ use tracing_subscriber::EnvFilter;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
-    match std::env::args().nth(1).as_deref() {
-        Some("--version" | "-V") => {
+    let arguments = std::env::args().skip(1).collect::<Vec<_>>();
+    match arguments.as_slice() {
+        [argument] if matches!(argument.as_str(), "--version" | "-V") => {
             println!("hybrid-search {}", env!("CARGO_PKG_VERSION"));
             return Ok(());
         }
-        Some("--help" | "-h") => {
-            println!(
-                "HybridSearch MCP server\n\nUsage: hybrid-search [--help|--version]\n\nThe default command starts an MCP server over stdio."
-            );
+        [argument] if matches!(argument.as_str(), "--help" | "-h" | "help") => {
+            println!("{}", render_cli(&help(None)));
             return Ok(());
         }
-        Some(argument) => anyhow::bail!("unknown argument: {argument}"),
-        None => {}
+        [command, topic] if command == "help" => {
+            print_topic_help(topic)?;
+            return Ok(());
+        }
+        [topic, command] if command == "help" => {
+            print_topic_help(topic)?;
+            return Ok(());
+        }
+        [argument, ..] => anyhow::bail!("unknown argument: {argument}; run `hybrid-search help`"),
+        [] => {}
     }
 
     tracing_subscriber::fmt()
@@ -41,5 +49,12 @@ async fn main() -> Result<()> {
         .await
         .context("failed to start MCP stdio transport")?;
     service.waiting().await.context("MCP server stopped")?;
+    Ok(())
+}
+
+fn print_topic_help(topic: &str) -> Result<()> {
+    let topic = parse_topic(topic)
+        .with_context(|| format!("unknown help topic: {topic}; run `hybrid-search help`"))?;
+    println!("{}", render_cli(&help(Some(topic))));
     Ok(())
 }

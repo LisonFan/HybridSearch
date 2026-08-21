@@ -1,6 +1,6 @@
 [package]
 name = "hybridsearch-mcp"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2024"
 rust-version = "1.97.1"
 description = "A Rust MCP server that combines ChatGPT2API, Tavily, Firecrawl, TinyFish, and Exa web search"
