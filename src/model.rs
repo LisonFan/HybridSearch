@@ -95,11 +95,36 @@ pub enum ResponseFormat {
     Detailed,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum SearchProvider {
+    Chatgpt2api,
+    Tavily,
+    Firecrawl,
+    Tinyfish,
+    Exa,
+}
+
+impl SearchProvider {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Chatgpt2api => "chatgpt2api",
+            Self::Tavily => "tavily",
+            Self::Firecrawl => "firecrawl",
+            Self::Tinyfish => "tinyfish",
+            Self::Exa => "exa",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct WebSearchInput {
     /// Search query.
     pub query: String,
-    /// Number of supplemental sources. Defaults to HYBRID_SEARCH_EXTRA_SOURCES.
+    /// Run only this provider and do not fall back to another provider.
+    #[serde(default)]
+    pub provider: Option<SearchProvider>,
+    /// Number of supplemental sources. With a selected source provider, this is its result limit.
     #[serde(default)]
     pub extra_sources: Option<usize>,
     /// Include extracted page content in the first sources.
@@ -131,6 +156,8 @@ pub struct WebSearchOutput {
     pub supplemental_provider: Option<String>,
     pub fallback_used: bool,
     pub truncated: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery_hint: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
@@ -152,6 +179,8 @@ pub struct GetSourcesOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_offset: Option<usize>,
     pub truncated: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery_hint: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
@@ -174,6 +203,8 @@ pub struct WebFetchOutput {
     pub source_type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fallback_reason: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recovery_hint: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, JsonSchema)]
@@ -192,15 +223,26 @@ pub struct WebMapOutput {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct ProviderHealth {
     pub provider: String,
+    pub enabled: bool,
+    pub configured: bool,
+    pub endpoints: Vec<String>,
+    pub credential: String,
     pub reachable: bool,
+    pub status: String,
     pub detail: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct DoctorOutput {
     pub status: String,
+    pub configuration_source: String,
     pub provider_order: Vec<String>,
+    pub source_provider_order: Vec<String>,
     pub providers: Vec<ProviderHealth>,
     pub github_token_configured: bool,
     pub timeout_seconds: u64,
+    pub cache_size: usize,
+    pub response_max_chars: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub debug_log_path: Option<String>,
 }

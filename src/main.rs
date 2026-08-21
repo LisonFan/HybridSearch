@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
 
     let config = Config::from_env().context("failed to load HybridSearch configuration")?;
     tracing::info!(
-        providers = ?config.configured_providers(),
+        providers = ?config.effective_provider_order(),
         "starting HybridSearch MCP server"
     );
     let server = HybridSearchServer::new(SearchService::new(config)?);

@@ -13,6 +13,7 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 ## 功能
 
 - 按固定顺序降级，不并行请求全部来源。
+- 支持配置来源顺序，并可在单次请求中指定搜索供应商。
 - 可选的 ChatGPT2API 综合回答及引用来源。
 - 支持 Tavily、Firecrawl、TinyFish、Exa 搜索和网页提取。
 - 对 GitHub issue、PR 和 release 进行结构化解析。
@@ -20,19 +21,33 @@ ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
 - 按搜索会话缓存来源，并支持分页读取。
 - 在上游支持时执行域名和时间范围过滤。
 - 所有 provider 共享单次调用总超时，并支持响应大小限制。
+- 响应被截断时返回可直接执行的恢复提示。
+- 支持分类诊断 provider 故障，并可输出脱敏 JSONL 日志。
 - 使用官方 Rust SDK 实现原生 MCP stdio 传输。
 
 ## MCP 工具
 
 | 工具 | 用途 |
 | --- | --- |
-| `web_search` | 搜索、合并引用、按需提取正文并缓存来源。 |
+| `web_search` | 搜索、按需指定单个供应商、合并引用、提取正文并缓存来源。 |
 | `get_sources` | 通过 `session_id` 读取缓存来源，不重新搜索。 |
 | `web_fetch` | 读取指定 URL；GitHub、StackExchange、arXiv 和 Wikipedia URL 使用专用 API 解析。 |
 | `web_map` | 使用 Tavily Map 发现站点 URL。 |
 | `doctor` | 探测已配置 provider，并返回脱敏后的运行诊断。 |
 
-配置 ChatGPT2API 时，`web_search` 会先调用它。Tavily、Firecrawl、TinyFish、Exa 构成补充和降级链，首个返回有效来源的 provider 即停止。请求包含域名或时间过滤条件时会跳过 Firecrawl，因为它的搜索接口无法严格执行这些过滤条件。
+配置 ChatGPT2API 时，`web_search` 会先调用它。Tavily、Firecrawl、TinyFish、Exa 构成默认补充和降级链，首个返回有效来源的 provider 即停止。请求包含域名或时间过滤条件时会跳过 Firecrawl，因为它的搜索接口无法严格执行这些过滤条件。
+
+传入 `provider` 可以只使用一个供应商，不执行降级或补充搜索：
+
+```json
+{
+  "query": "Rust 1.97 release notes",
+  "provider": "exa",
+  "response_format": "concise"
+}
+```
+
+可选值为 `chatgpt2api`、`tavily`、`firecrawl`、`tinyfish`、`exa`。指定的供应商必须已经配置；来源供应商还必须由 `HYBRID_SEARCH_SOURCE_PROVIDERS` 启用。指定来源供应商时，`extra_sources` 控制最大结果数量，默认使用 `HYBRID_SEARCH_FALLBACK_SOURCES`。
 
 ## 环境要求
 
@@ -86,6 +101,7 @@ cargo build --release --locked
 
 | 环境变量 | 默认值 | 说明 |
 | --- | --- | --- |
+| `HYBRID_SEARCH_SOURCE_PROVIDERS` | `tavily,firecrawl,tinyfish,exa` | 逗号分隔的来源供应商顺序。可以调整顺序或省略供应商，名称无效时启动失败。ChatGPT2API 独立配置，默认仍最先调用。 |
 | `HYBRID_SEARCH_TIMEOUT_SECONDS` | `300` | 单次工具调用共享的总超时。 |
 | `HYBRID_SEARCH_EXTRA_SOURCES` | `3` | ChatGPT2API 返回有效结果后的补充来源数。 |
 | `HYBRID_SEARCH_FALLBACK_SOURCES` | `5` | ChatGPT2API 未配置或结果不可用时的来源数。 |
@@ -97,8 +113,13 @@ cargo build --release --locked
 | `HYBRID_SEARCH_MAX_INLINE_SOURCES` | `5` | 最大内联正文来源数。 |
 | `HYBRID_SEARCH_GITHUB_MAX_COMMENTS` | `30` | GitHub 评论最大渲染数量。 |
 | `HYBRID_SEARCH_SOURCE_MAX_ANSWERS` | `5` | StackExchange 答案最大渲染数量，采纳答案优先。 |
+| `HYBRID_SEARCH_LOG_PATH` | 不启用 | 向指定文件追加经过脱敏的 JSON Lines 诊断事件，不记录搜索关键词正文。 |
 
 对于匹配的 URL，`web_fetch` 会直接使用 GitHub REST API、Stack Exchange API v2.3、arXiv Export API 和 MediaWiki Action API。这些公共专用 API 不需要 Tavily、Firecrawl、TinyFish 或 Exa 凭据。专用解析失败时，HybridSearch 会记录原因，并降级到已配置的通用抓取链。
+
+当响应限制导致内联正文或末尾来源被截断时，`web_search`、`get_sources` 和 `web_fetch` 会返回 `recovery_hint`。搜索缓存仍保留完整结果：使用 `get_sources(session_id)` 获取更多来源，使用 `web_fetch(url)` 获取完整页面内容。
+
+`doctor` 会列出所有支持的供应商，包括启用和配置状态、脱敏端点、凭据是否存在、连通性，以及 `authentication`、`rate_limited`、`network`、`timeout` 等分类状态。实时探测可能消耗一次很小的供应商请求。诊断日志会递归隐藏 API Key、Token、Authorization、密码和 Cookie 字段。
 
 ## MCP 客户端配置
 

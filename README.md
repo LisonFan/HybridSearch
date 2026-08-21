@@ -13,6 +13,7 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 ## Features
 
 - Ordered provider fallback instead of parallel fan-out.
+- Configurable source-provider order and per-request provider selection.
 - Optional ChatGPT2API synthesized answers with cited sources.
 - Tavily, Firecrawl, TinyFish, and Exa search and page extraction.
 - Structured GitHub issue, pull request, and release extraction.
@@ -20,19 +21,33 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 - Cached source sessions with paginated retrieval.
 - Domain and recency filters where the upstream provider can enforce them.
 - Shared request deadlines and configurable response limits.
+- Actionable recovery hints when a response is trimmed.
+- Categorized provider diagnostics and optional redacted JSONL logs.
 - Native MCP stdio transport built with the official Rust SDK.
 
 ## MCP tools
 
 | Tool | Purpose |
 | --- | --- |
-| `web_search` | Search, merge citations, optionally extract page content, and cache sources. |
+| `web_search` | Search, optionally select one provider, merge citations, extract page content, and cache sources. |
 | `get_sources` | Read cached sources by `session_id` without running another search. |
 | `web_fetch` | Read one URL; GitHub, StackExchange, arXiv, and Wikipedia URLs use specialist APIs. |
 | `web_map` | Discover URLs with Tavily Map. |
 | `doctor` | Probe configured providers and show redacted runtime diagnostics. |
 
-`web_search` calls ChatGPT2API first when it is configured. Tavily, Firecrawl, TinyFish, and Exa form the supplemental/fallback chain; the first provider with usable sources wins. Firecrawl is skipped when a request contains domain or recency filters because its search API cannot enforce those filters.
+`web_search` calls ChatGPT2API first when it is configured. Tavily, Firecrawl, TinyFish, and Exa form the default supplemental/fallback chain; the first provider with usable sources wins. Firecrawl is skipped when a request contains domain or recency filters because its search API cannot enforce those filters.
+
+Pass `provider` to use exactly one provider without fallback or supplemental searches:
+
+```json
+{
+  "query": "Rust 1.97 release notes",
+  "provider": "exa",
+  "response_format": "concise"
+}
+```
+
+Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, and `exa`. The selected provider must be configured and, for a source provider, enabled by `HYBRID_SEARCH_SOURCE_PROVIDERS`. When a source provider is selected, `extra_sources` controls its maximum result count and defaults to `HYBRID_SEARCH_FALLBACK_SOURCES`.
 
 ## Requirements
 
@@ -86,6 +101,7 @@ The binary is written to `target/release/hybrid-search` (`hybrid-search.exe` on 
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `HYBRID_SEARCH_SOURCE_PROVIDERS` | `tavily,firecrawl,tinyfish,exa` | Comma-separated source-provider order. Reorder or omit providers; unknown names fail at startup. ChatGPT2API is controlled separately and remains first by default. |
 | `HYBRID_SEARCH_TIMEOUT_SECONDS` | `300` | Total deadline shared by one tool call. |
 | `HYBRID_SEARCH_EXTRA_SOURCES` | `3` | Supplemental source count after a usable ChatGPT2API result. |
 | `HYBRID_SEARCH_FALLBACK_SOURCES` | `5` | Source count when ChatGPT2API is absent or unusable. |
@@ -97,8 +113,13 @@ The binary is written to `target/release/hybrid-search` (`hybrid-search.exe` on 
 | `HYBRID_SEARCH_MAX_INLINE_SOURCES` | `5` | Maximum sources enriched inline. |
 | `HYBRID_SEARCH_GITHUB_MAX_COMMENTS` | `30` | Maximum rendered GitHub comments. |
 | `HYBRID_SEARCH_SOURCE_MAX_ANSWERS` | `5` | Maximum rendered StackExchange answers; accepted answers are shown first. |
+| `HYBRID_SEARCH_LOG_PATH` | disabled | Append redacted diagnostic events as JSON Lines to this file. Search query text is not logged. |
 
 `web_fetch` uses the GitHub REST API, Stack Exchange API v2.3, arXiv Export API, and MediaWiki Action API directly for matching URLs. These public specialist APIs do not require Tavily, Firecrawl, TinyFish, or Exa credentials. When a specialist cannot extract the page, HybridSearch records the reason and falls back to the configured generic fetch chain.
+
+When response limits remove inline content or trailing sources, `web_search`, `get_sources`, and `web_fetch` return a `recovery_hint`. Cached search results remain complete: use `get_sources(session_id)` for more source records and `web_fetch(url)` for full page content.
+
+`doctor` lists every supported provider with its enabled/configured state, redacted endpoint, credential presence, reachability, and a categorized status such as `authentication`, `rate_limited`, `network`, or `timeout`. Its live probes may consume a small provider request. Diagnostic logs recursively mask API-key, token, authorization, password, and cookie fields.
 
 ## MCP client setup
 
