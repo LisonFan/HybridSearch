@@ -1,6 +1,6 @@
 {
   "name": "@dctwgroo/hybridsearch-mcp-linux-x64",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Linux x64 binary for HybridSearch MCP",
   "license": "MIT",
   "repository": {

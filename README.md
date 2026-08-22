@@ -51,7 +51,7 @@ Pass `provider` to use exactly one provider without fallback or supplemental sea
 
 ```json
 {
-  "query": "Rust 1.97 release notes",
+  "query": "Rust 1.98 release notes",
   "provider": "exa",
   "response_format": "concise"
 }
@@ -61,7 +61,7 @@ Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, and `exa`.
 
 ## Requirements
 
-- Rust 1.97.1 when building from source.
+- Rust 1.98.0 when building from source.
 - Node.js 26.7.0 or newer when installing from npm.
 - At least one valid search configuration:
   - both `CHATGPT2API_API_URL` and `CHATGPT2API_API_KEY`, or

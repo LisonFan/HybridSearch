@@ -51,7 +51,7 @@ hybrid-search help web_search
 
 ```json
 {
-  "query": "Rust 1.97 release notes",
+  "query": "Rust 1.98 release notes",
   "provider": "exa",
   "response_format": "concise"
 }
@@ -61,7 +61,7 @@ hybrid-search help web_search
 
 ## 环境要求
 
-- 从源码构建需要 Rust 1.97.1。
+- 从源码构建需要 Rust 1.98.0。
 - 通过 npm 安装需要 Node.js 26.7.0 或更高版本。
 - 至少配置一个有效搜索来源：
   - 同时配置 `CHATGPT2API_API_URL` 和 `CHATGPT2API_API_KEY`；或者
