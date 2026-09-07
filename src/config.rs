@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub const SOURCE_PROVIDER_NAMES: [&str; 4] = ["tavily", "firecrawl", "tinyfish", "exa"];
+pub const SOURCE_PROVIDER_NAMES: [&str; 5] = ["tavily", "firecrawl", "tinyfish", "exa", "keenable"];
 
 #[derive(Clone)]
 pub struct Config {
@@ -18,6 +18,8 @@ pub struct Config {
     pub tinyfish_api_key: Option<String>,
     pub exa_api_url: String,
     pub exa_api_key: Option<String>,
+    pub keenable_api_url: String,
+    pub keenable_api_key: Option<String>,
     pub github_token: Option<String>,
     pub source_providers: Vec<String>,
     pub source_providers_explicit: bool,
@@ -64,6 +66,8 @@ impl std::fmt::Debug for Config {
             .field("tinyfish_api_key", &status(&self.tinyfish_api_key))
             .field("exa_api_url", &endpoint(&self.exa_api_url))
             .field("exa_api_key", &status(&self.exa_api_key))
+            .field("keenable_api_url", &endpoint(&self.keenable_api_url))
+            .field("keenable_api_key", &status(&self.keenable_api_key))
             .field("github_token", &status(&self.github_token))
             .field("source_providers", &self.source_providers)
             .field("source_providers_explicit", &self.source_providers_explicit)
@@ -104,6 +108,7 @@ impl Config {
         let firecrawl_key = optional(&values, "FIRECRAWL_API_KEY");
         let tinyfish_key = optional(&values, "TINYFISH_API_KEY");
         let exa_key = optional(&values, "EXA_API_KEY");
+        let keenable_key = optional(&values, "KEENABLE_API_KEY");
         let configured_source_providers = optional(&values, "HYBRID_SEARCH_SOURCE_PROVIDERS");
         let source_providers_explicit = configured_source_providers.is_some();
         let source_providers = configured_source_providers
@@ -129,11 +134,12 @@ impl Config {
                 "firecrawl" => firecrawl_key.is_some(),
                 "tinyfish" => tinyfish_key.is_some(),
                 "exa" => exa_key.is_some(),
+                "keenable" => keenable_key.is_some(),
                 _ => false,
             });
         if !chat_complete && !source_configured {
             return Err(HybridSearchError::MissingConfig(
-                "configure CHATGPT2API_API_URL + CHATGPT2API_API_KEY or enable a configured TAVILY_API_KEY, FIRECRAWL_API_KEY, TINYFISH_API_KEY, or EXA_API_KEY"
+                "configure CHATGPT2API_API_URL + CHATGPT2API_API_KEY or enable a configured TAVILY_API_KEY, FIRECRAWL_API_KEY, TINYFISH_API_KEY, EXA_API_KEY, or KEENABLE_API_KEY"
                     .to_string(),
             ));
         }
@@ -158,6 +164,8 @@ impl Config {
             tinyfish_api_key: tinyfish_key,
             exa_api_url: value(&values, "EXA_API_URL", "https://api.exa.ai"),
             exa_api_key: exa_key,
+            keenable_api_url: value(&values, "KEENABLE_API_URL", "https://api.keenable.ai"),
+            keenable_api_key: keenable_key,
             github_token: optional(&values, "GITHUB_TOKEN"),
             source_providers,
             source_providers_explicit,
@@ -198,6 +206,9 @@ impl Config {
         if self.exa_api_key.is_some() {
             providers.push("exa");
         }
+        if self.keenable_api_key.is_some() {
+            providers.push("keenable");
+        }
         providers
     }
 
@@ -213,6 +224,7 @@ impl Config {
                     "firecrawl" => "firecrawl",
                     "tinyfish" => "tinyfish",
                     "exa" => "exa",
+                    "keenable" => "keenable",
                     _ => continue,
                 });
             }
@@ -233,6 +245,7 @@ impl Config {
             "firecrawl" => self.firecrawl_api_key.is_some(),
             "tinyfish" => self.tinyfish_api_key.is_some(),
             "exa" => self.exa_api_key.is_some(),
+            "keenable" => self.keenable_api_key.is_some(),
             _ => false,
         }
     }
@@ -245,6 +258,7 @@ impl Config {
             self.firecrawl_api_key.as_deref(),
             self.tinyfish_api_key.as_deref(),
             self.exa_api_key.as_deref(),
+            self.keenable_api_key.as_deref(),
             self.github_token.as_deref(),
         ]
         .into_iter()

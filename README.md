@@ -5,7 +5,7 @@
 HybridSearch is a Rust MCP server for evidence-backed web search. It uses ChatGPT2API when configured, then walks an ordered source-provider chain:
 
 ```text
-ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa
+ChatGPT2API → Tavily → Firecrawl → TinyFish → Exa → Keenable
 ```
 
 The project does not require Grok or an OpenAI-compatible model gateway. Any configured search provider can start the server and serve `web_search`.
@@ -15,7 +15,7 @@ The project does not require Grok or an OpenAI-compatible model gateway. Any con
 - Ordered provider fallback instead of parallel fan-out.
 - Configurable source-provider order and per-request provider selection.
 - Optional ChatGPT2API synthesized answers with cited sources.
-- Tavily, Firecrawl, TinyFish, and Exa search and page extraction.
+- Tavily, Firecrawl, TinyFish, Exa, and Keenable search and page extraction.
 - Structured GitHub issue, pull request, and release extraction.
 - Specialist StackExchange, arXiv, and Wikipedia extraction through their public APIs.
 - Cached source sessions with paginated retrieval.
@@ -45,7 +45,7 @@ hybrid-search help
 hybrid-search help web_search
 ```
 
-`web_search` calls ChatGPT2API first when it is configured. Tavily, Firecrawl, TinyFish, and Exa form the default supplemental/fallback chain; the first provider with usable sources wins. Firecrawl is skipped when a request contains domain or recency filters because its search API cannot enforce those filters.
+`web_search` calls ChatGPT2API first when it is configured. Tavily, Firecrawl, TinyFish, Exa, and Keenable form the default supplemental/fallback chain; the first provider with usable sources wins. Firecrawl is skipped when a request contains domain or recency filters because its search API cannot enforce those filters. Keenable supports recency and one included domain; it rejects excluded domains and multiple included domains rather than silently ignoring them.
 
 Pass `provider` to use exactly one provider without fallback or supplemental searches:
 
@@ -57,7 +57,7 @@ Pass `provider` to use exactly one provider without fallback or supplemental sea
 }
 ```
 
-Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, and `exa`. The selected provider must be configured and, for a source provider, enabled by `HYBRID_SEARCH_SOURCE_PROVIDERS`. When a source provider is selected, `extra_sources` controls its maximum result count and defaults to `HYBRID_SEARCH_FALLBACK_SOURCES`.
+Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, `exa`, and `keenable`. The selected provider must be configured and, for a source provider, enabled by `HYBRID_SEARCH_SOURCE_PROVIDERS`. When a source provider is selected, `extra_sources` controls its maximum result count and defaults to `HYBRID_SEARCH_FALLBACK_SOURCES`.
 
 ## Requirements
 
@@ -65,7 +65,7 @@ Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, and `exa`.
 - Node.js 26.7.0 or newer when installing from npm.
 - At least one valid search configuration:
   - both `CHATGPT2API_API_URL` and `CHATGPT2API_API_KEY`, or
-  - `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `TINYFISH_API_KEY`, or `EXA_API_KEY`.
+  - `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `TINYFISH_API_KEY`, `EXA_API_KEY`, or `KEENABLE_API_KEY`.
 
 `GITHUB_TOKEN` improves GitHub API rate limits but does not count as a search provider.
 
@@ -105,13 +105,15 @@ The binary is written to `target/release/hybrid-search` (`hybrid-search.exe` on 
 | `TINYFISH_FETCH_API_URL` | `https://api.fetch.tinyfish.ai` | TinyFish fetch endpoint. |
 | `EXA_API_KEY` | — | Exa API key. |
 | `EXA_API_URL` | `https://api.exa.ai` | Exa API base URL. |
+| `KEENABLE_API_KEY` | — | Keenable API key sent through `X-API-Key`. |
+| `KEENABLE_API_URL` | `https://api.keenable.ai` | [Keenable](https://docs.keenable.ai/) API base URL. |
 | `GITHUB_TOKEN` | — | Optional GitHub token for higher API limits and private repositories. |
 
 ### Runtime behavior
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `HYBRID_SEARCH_SOURCE_PROVIDERS` | `tavily,firecrawl,tinyfish,exa` | Comma-separated source-provider order. Reorder or omit providers; unknown names fail at startup. ChatGPT2API is controlled separately and remains first by default. |
+| `HYBRID_SEARCH_SOURCE_PROVIDERS` | `tavily,firecrawl,tinyfish,exa,keenable` | Comma-separated source-provider order. Reorder or omit providers; unknown names fail at startup. ChatGPT2API is controlled separately and remains first by default. |
 | `HYBRID_SEARCH_TIMEOUT_SECONDS` | `300` | Total deadline shared by one tool call. |
 | `HYBRID_SEARCH_EXTRA_SOURCES` | `3` | Supplemental source count after a usable ChatGPT2API result. |
 | `HYBRID_SEARCH_FALLBACK_SOURCES` | `5` | Source count when ChatGPT2API is absent or unusable. |
@@ -125,7 +127,7 @@ The binary is written to `target/release/hybrid-search` (`hybrid-search.exe` on 
 | `HYBRID_SEARCH_SOURCE_MAX_ANSWERS` | `5` | Maximum rendered StackExchange answers; accepted answers are shown first. |
 | `HYBRID_SEARCH_LOG_PATH` | disabled | Append redacted diagnostic events as JSON Lines to this file. Search query text is not logged. |
 
-`web_fetch` uses the GitHub REST API, Stack Exchange API v2.3, arXiv Export API, and MediaWiki Action API directly for matching URLs. These public specialist APIs do not require Tavily, Firecrawl, TinyFish, or Exa credentials. When a specialist cannot extract the page, HybridSearch records the reason and falls back to the configured generic fetch chain.
+`web_fetch` uses the GitHub REST API, Stack Exchange API v2.3, arXiv Export API, and MediaWiki Action API directly for matching URLs. These public specialist APIs do not require Tavily, Firecrawl, TinyFish, Exa, or Keenable credentials. When a specialist cannot extract the page, HybridSearch records the reason and falls back to the configured generic fetch chain.
 
 When response limits remove inline content or trailing sources, `web_search`, `get_sources`, and `web_fetch` return a `recovery_hint`. Cached search results remain complete: use `get_sources(session_id)` for more source records and `web_fetch(url)` for full page content.
 

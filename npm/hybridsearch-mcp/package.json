@@ -1,7 +1,7 @@
 {
   "name": "@dctwgroo/hybridsearch-mcp",
   "version": "0.0.5",
-  "description": "Hybrid web search MCP server powered by ChatGPT2API, Tavily, Firecrawl, TinyFish, and Exa",
+  "description": "Hybrid web search MCP server powered by ChatGPT2API, Tavily, Firecrawl, TinyFish, Exa, and Keenable",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
     "tavily",
     "firecrawl",
     "exa",
+    "keenable",
     "rust",
     "cli"
   ],

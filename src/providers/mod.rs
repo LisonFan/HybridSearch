@@ -2,6 +2,7 @@ mod chatgpt2api;
 mod exa;
 mod firecrawl;
 mod http;
+mod keenable;
 mod tavily;
 mod tinyfish;
 
@@ -14,6 +15,7 @@ use std::sync::Arc;
 pub use chatgpt2api::{ChatSearchResult, Chatgpt2apiProvider};
 pub use exa::ExaProvider;
 pub use firecrawl::FirecrawlProvider;
+pub use keenable::KeenableProvider;
 pub use tavily::TavilyProvider;
 pub use tinyfish::TinyfishProvider;
 

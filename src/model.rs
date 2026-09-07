@@ -103,6 +103,7 @@ pub enum SearchProvider {
     Firecrawl,
     Tinyfish,
     Exa,
+    Keenable,
 }
 
 impl SearchProvider {
@@ -113,6 +114,7 @@ impl SearchProvider {
             Self::Firecrawl => "firecrawl",
             Self::Tinyfish => "tinyfish",
             Self::Exa => "exa",
+            Self::Keenable => "keenable",
         }
     }
 }

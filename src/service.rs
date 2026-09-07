@@ -8,8 +8,8 @@ use crate::model::{
     merge_sources,
 };
 use crate::providers::{
-    Chatgpt2apiProvider, ExaProvider, FirecrawlProvider, SharedSourceProvider, TavilyProvider,
-    TinyfishProvider, build_http_client,
+    Chatgpt2apiProvider, ExaProvider, FirecrawlProvider, KeenableProvider, SharedSourceProvider,
+    TavilyProvider, TinyfishProvider, build_http_client,
 };
 use futures::{StreamExt, stream};
 use serde_json::json;
@@ -95,6 +95,16 @@ impl SearchService {
                     source_providers.push(Arc::new(ExaProvider::new(
                         client.clone(),
                         config.exa_api_url.clone(),
+                        key.clone(),
+                    )));
+                }
+                "keenable" => {
+                    let Some(key) = &config.keenable_api_key else {
+                        continue;
+                    };
+                    source_providers.push(Arc::new(KeenableProvider::new(
+                        client.clone(),
+                        config.keenable_api_url.clone(),
                         key.clone(),
                     )));
                 }
@@ -504,7 +514,14 @@ impl SearchService {
         }
 
         let mut providers = Vec::new();
-        for name in ["chatgpt2api", "tavily", "firecrawl", "tinyfish", "exa"] {
+        for name in [
+            "chatgpt2api",
+            "tavily",
+            "firecrawl",
+            "tinyfish",
+            "exa",
+            "keenable",
+        ] {
             let configured = self.inner.config.provider_configured(name);
             let enabled = if name == "chatgpt2api" {
                 configured
@@ -925,6 +942,7 @@ fn provider_key_name(provider: &str) -> &'static str {
         "firecrawl" => "FIRECRAWL_API_KEY",
         "tinyfish" => "TINYFISH_API_KEY",
         "exa" => "EXA_API_KEY",
+        "keenable" => "KEENABLE_API_KEY",
         _ => "provider credentials",
     }
 }
@@ -943,6 +961,7 @@ fn provider_endpoints(config: &Config, provider: &str) -> Vec<String> {
             &config.tinyfish_fetch_api_url,
         ],
         "exa" => vec![&config.exa_api_url],
+        "keenable" => vec![&config.keenable_api_url],
         _ => Vec::new(),
     };
     endpoints

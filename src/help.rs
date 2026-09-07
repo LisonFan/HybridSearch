@@ -43,9 +43,9 @@ pub fn help(topic: Option<HelpTopic>) -> HelpOutput {
             &[
                 "query is required. response_format=concise omits inline page content; detailed includes it. response_format takes precedence over include_content.",
                 "Without provider, ChatGPT2API runs first when configured and the HYBRID_SEARCH_SOURCE_PROVIDERS chain supplies supplemental or fallback sources.",
-                "provider may be chatgpt2api, tavily, firecrawl, tinyfish, or exa. It selects exactly one configured provider and disables fallback.",
+                "provider may be chatgpt2api, tavily, firecrawl, tinyfish, exa, or keenable. It selects exactly one configured provider and disables fallback.",
                 "extra_sources controls supplemental count after a usable ChatGPT2API result; with a selected source provider, it is that provider's result limit.",
-                "recency_days must be positive. include_domains and exclude_domains are enforced only by providers that support those filters; Firecrawl is skipped for filtered requests.",
+                "recency_days must be positive. include_domains and exclude_domains are enforced only by providers that support those filters; Firecrawl is skipped for filtered requests. Keenable supports recency and one include domain, but not exclude domains.",
                 "Use search_provider, supplemental_provider, and fallback_used to identify the route actually used. answer is a synthesized response and should be verified against source URLs.",
                 "The full source set is cached under session_id. When truncated is true, follow recovery_hint and use get_sources or web_fetch.",
             ],
@@ -96,7 +96,7 @@ pub fn help(topic: Option<HelpTopic>) -> HelpOutput {
             "Configure at least one search provider, then adjust routing and runtime behavior with HYBRID_SEARCH_* variables.",
             "See README.md or README.zh-CN.md for the complete environment-variable reference.",
             &[
-                "ChatGPT2API requires both CHATGPT2API_API_URL and CHATGPT2API_API_KEY. Tavily, Firecrawl, TinyFish, and Exa each use their own API key and optional custom endpoint.",
+                "ChatGPT2API requires both CHATGPT2API_API_URL and CHATGPT2API_API_KEY. Tavily, Firecrawl, TinyFish, Exa, and Keenable each use their own API key and optional custom endpoint.",
                 "HYBRID_SEARCH_SOURCE_PROVIDERS controls the ordered source chain. ChatGPT2API is configured separately and remains first in automatic routing.",
                 "HYBRID_SEARCH_TIMEOUT_SECONDS is the shared deadline for one tool call. Response, cache, enrichment, and inline-content limits are configurable.",
                 "HYBRID_SEARCH_LOG_PATH enables redacted JSONL diagnostic events. Search query text is not logged.",
