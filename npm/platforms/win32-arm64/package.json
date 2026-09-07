@@ -1,6 +1,6 @@
 {
   "name": "@dctwgroo/hybridsearch-mcp-win32-arm64",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Windows arm64 binary for HybridSearch MCP",
   "license": "MIT",
   "repository": {
