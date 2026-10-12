@@ -62,7 +62,7 @@ Accepted values are `chatgpt2api`, `tavily`, `firecrawl`, `tinyfish`, `exa`, and
 ## Requirements
 
 - Rust 1.98.0 when building from source.
-- Node.js 26.7.0 or newer when installing from npm.
+- Node.js 14.0.0 or newer when installing from npm.
 - At least one valid search configuration:
   - both `CHATGPT2API_API_URL` and `CHATGPT2API_API_KEY`, or
   - `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `TINYFISH_API_KEY`, `EXA_API_KEY`, or `KEENABLE_API_KEY`.

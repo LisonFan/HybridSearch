@@ -1,6 +1,6 @@
 {
   "name": "@dctwgroo/hybridsearch-mcp",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Hybrid web search MCP server powered by ChatGPT2API, Tavily, Firecrawl, TinyFish, Exa, and Keenable",
   "license": "MIT",
   "repository": {
@@ -32,7 +32,7 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "engines": {
-    "node": ">=26.7.0"
+    "node": ">=14.0.0"
   },
   "os": [
     "darwin",
@@ -44,12 +44,12 @@
     "arm64"
   ],
   "optionalDependencies": {
-    "@dctwgroo/hybridsearch-mcp-darwin-x64": "0.0.7",
-    "@dctwgroo/hybridsearch-mcp-darwin-arm64": "0.0.7",
-    "@dctwgroo/hybridsearch-mcp-linux-x64": "0.0.7",
-    "@dctwgroo/hybridsearch-mcp-linux-arm64": "0.0.7",
-    "@dctwgroo/hybridsearch-mcp-win32-x64": "0.0.7",
-    "@dctwgroo/hybridsearch-mcp-win32-arm64": "0.0.7"
+    "@dctwgroo/hybridsearch-mcp-darwin-x64": "0.0.8",
+    "@dctwgroo/hybridsearch-mcp-darwin-arm64": "0.0.8",
+    "@dctwgroo/hybridsearch-mcp-linux-x64": "0.0.8",
+    "@dctwgroo/hybridsearch-mcp-linux-arm64": "0.0.8",
+    "@dctwgroo/hybridsearch-mcp-win32-x64": "0.0.8",
+    "@dctwgroo/hybridsearch-mcp-win32-arm64": "0.0.8"
   },
   "publishConfig": {
     "access": "public"

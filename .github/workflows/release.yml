@@ -79,7 +79,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "26.7.0"
+          node-version: "16.0.0"
           package-manager-cache: false
 
       - name: Set up Rust 1.98.0
@@ -218,9 +218,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "26.7.0"
+          node-version: "22.14.0"
           registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
+
+      - name: Set up npm 11.5.1
+        run: npm install --global npm@11.5.1
 
       - name: Download release binary
         uses: actions/download-artifact@v8
@@ -268,9 +271,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "26.7.0"
+          node-version: "22.14.0"
           registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
+
+      - name: Set up npm 11.5.1
+        run: npm install --global npm@11.5.1
 
       - name: Sync package versions with tag
         shell: bash

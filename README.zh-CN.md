@@ -62,7 +62,7 @@ hybrid-search help web_search
 ## 环境要求
 
 - 从源码构建需要 Rust 1.98.0。
-- 通过 npm 安装需要 Node.js 26.7.0 或更高版本。
+- 通过 npm 安装需要 Node.js 14.0.0 或更高版本。
 - 至少配置一个有效搜索来源：
   - 同时配置 `CHATGPT2API_API_URL` 和 `CHATGPT2API_API_KEY`；或者
   - 配置 `TAVILY_API_KEY`、`FIRECRAWL_API_KEY`、`TINYFISH_API_KEY`、`EXA_API_KEY`、`KEENABLE_API_KEY` 中任意一个。
